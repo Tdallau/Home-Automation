@@ -1,7 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace HomeAutomation.Models
 {
-    public class Credentials
-    {
-        
-    }
+  public class Credentials
+  {
+    [Required]
+    public string Email { get; set; }
+    [Required]
+    public string Password { get; set; }
+  }
 }
