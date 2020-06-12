@@ -19,7 +19,7 @@ namespace HomeAutomation.Controllers
     }
 
     [HttpPost]
-    public async Task<ActionResult<Response<User>>> Login([FromBody] Credentials credentials)
+    public async Task<ActionResult<Response<LoginResponse>>> Login([FromBody] Credentials credentials)
     {
       if(!ModelState.IsValid) return BadRequest(new Response<string>() {
         Error = "username and password are requierd",
@@ -28,12 +28,9 @@ namespace HomeAutomation.Controllers
 
       var user = await _authorizationService.Login(credentials);
 
-      if(user == null) return BadRequest(new Response<string>() {
-        Error = "user does not exist in our system",
-        Success = false
-      });
+      if(user == null) return Forbid();
 
-      return Ok(new Response<User>() {
+      return Ok(new Response<LoginResponse>() {
         Data = user,
         Success = true
       });
@@ -47,10 +44,7 @@ namespace HomeAutomation.Controllers
         Success = false
       });
       var userCreated = await _authorizationService.Register(user);
-      if(!userCreated) return BadRequest(new Response<string>() {
-        Error = "user with this email does already exist",
-        Success = false
-      });
+      if(!userCreated) return Forbid();
 
       return Ok(new Response<string>() {
         Data = "User is created",

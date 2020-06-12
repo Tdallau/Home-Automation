@@ -6,7 +6,7 @@ namespace HomeAutomation.Interfaces
 {
     public interface IAuthorizationService
     {
-         Task<User> Login(Credentials credentials);
+         Task<LoginResponse> Login(Credentials credentials);
          Task<bool> Register(Credentials credentials);
     }
 }
