@@ -8,7 +8,8 @@ namespace HomeAutomation.Interfaces
     {
          Task<LoginResponse> Login(Credentials credentials);
          Task<bool> Register(Credentials credentials);
-
          Task<JWTToken> Refresh(JWTToken tokens);
+
+         Task Logout(string refreshToken);
     }
 }

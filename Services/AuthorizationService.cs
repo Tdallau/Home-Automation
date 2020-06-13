@@ -44,7 +44,7 @@ namespace HomeAutomation.Services
       await _context.SaveChangesAsync();
 
       var response = new LoginResponse() {
-        JwtToken = token,
+        TokenSettings = token,
         Email = user.Email,
         Id = user.Id,
       };
@@ -74,7 +74,7 @@ namespace HomeAutomation.Services
     public async Task<JWTToken> Refresh(JWTToken tokens)
     {
       var tokenInDb = await _context.UserToken.FirstOrDefaultAsync(token => token.RefreshToken == tokens.RefreshToken);
-      if(tokenInDb == null) return null;
+      if(tokenInDb == null || tokenInDb.ExpiryDate < DateTime.Now) return null;
 
       var user = Models.UserToken.FromToken(tokens.JwtToken);
 
@@ -92,6 +92,13 @@ namespace HomeAutomation.Services
       _context.Update(tokenInDb);
       await _context.SaveChangesAsync();
       return token;
+    }
+
+    public async Task Logout(string refreshToken) {
+      var token = await _context.UserToken.FirstOrDefaultAsync(token => token.RefreshToken == refreshToken);
+      if(token == null) return;
+      _context.Remove(token);
+      await _context.SaveChangesAsync();
     }
   }
 }

@@ -3,8 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HomeAutomation.Areas.MyRecipes.Helpers.Mappers;
+using HomeAutomation.Areas.MyRecipes.Interfaces;
+using HomeAutomation.Areas.MyRecipes.Models;
+using HomeAutomation.Areas.MyRecipes.Services;
 using HomeAutomation.Helpers.Contexts;
 using HomeAutomation.Interfaces;
+using HomeAutomation.Models.Database.MyRecipes;
 using HomeAutomation.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -38,8 +43,11 @@ namespace HomeAutomation
       services.AddDbContext<MainContext>(
         opt => opt.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"))
       );
+      services.AddDbContext<MyRecipesContext>(
+        opt => opt.UseNpgsql(Configuration.GetConnectionString("MyRecipeConnection"))
+      );
 
-           // add autentication
+      // add autentication
       services.AddAuthentication(options =>
       {
         options.DefaultAuthenticateScheme = "Jwt";
@@ -70,9 +78,14 @@ namespace HomeAutomation
         options.AddPolicy("SiteCorsPolicy", corsBuilder.Build());
       });
 
+      // main project
       services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));
-
       services.AddScoped<IAuthorizationService, AuthorizationService>();
+
+      // my recipes
+      services.AddScoped<IRecipeService, RecipeService>();
+      services.AddScoped(typeof(IMapper<,>), typeof(BaseMapper<,>));
+      services.AddScoped(typeof(IMapper<Recipe, RecipeResponse>), typeof(RecipeToRecipeResponse));
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

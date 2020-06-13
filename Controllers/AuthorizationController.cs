@@ -57,12 +57,22 @@ namespace HomeAutomation.Controllers
     public async Task<ActionResult<Response<JWTToken>>> Refresh([FromBody] JWTToken tokens)
     {
       var newTokens = await _authorizationService.Refresh(tokens);
-      if(newTokens == null) return Forbid();
+      if(newTokens == null) return Ok(new Response<string>() {
+        Error = "Token is expired",
+        Success = false,
+      });
 
       return Ok(new Response<JWTToken>() {
         Data = newTokens,
         Success = true
       });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Logout([FromBody] JWTToken token)
+    {
+      await _authorizationService.Logout(token.RefreshToken);
+      return Ok();
     }
   }
 }
