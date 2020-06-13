@@ -27,6 +27,9 @@ namespace HomeAutomation.Services
       var user = await _context.User.FirstOrDefaultAsync(user => user.Email.ToLower() == credentials.Email.ToLower());
       if(user == null || _passwordHasher.VerifyHashedPassword(user, user.Password, credentials.Password) == PasswordVerificationResult.Failed) return null;
 
+      var myApps = await _context.UserApp.FirstOrDefaultAsync(app => app.AppId == credentials.AppId && app.UserId == user.Id);
+      if(myApps == null) return null;
+
       var userToken = new Models.UserToken() {
         UserId = user.Id
       };
@@ -38,7 +41,7 @@ namespace HomeAutomation.Services
         UserId = user.Id,
         RefreshToken = token.RefreshToken,
         LastUpdated = now,
-        ExpiryDate = now.AddDays(7),
+        ExpiryDate = now.AddDays(14),
         AppId = credentials.AppId
       });
       await _context.SaveChangesAsync();
@@ -86,7 +89,7 @@ namespace HomeAutomation.Services
       var now = DateTime.Now;
 
       tokenInDb.LastUpdated = now;
-      tokenInDb.ExpiryDate = now.AddDays(7);
+      tokenInDb.ExpiryDate = now.AddDays(14);
       tokenInDb.RefreshToken = token.RefreshToken;
 
       _context.Update(tokenInDb);
