@@ -10,8 +10,12 @@ namespace HomeAutomation.Models.Database.Authorization
     public string RefreshToken { get; set; }
     public DateTime LastUpdated { get; set; }
     public DateTime ExpiryDate { get; set; }
+    public Guid AppId { get; set; }
 
     [JsonIgnore]
     public virtual User User { get; set; }
+
+    [JsonIgnore]
+    public virtual App App { get; set; }
   }
 }

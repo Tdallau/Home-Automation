@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace HomeAutomation.Models
@@ -8,5 +9,8 @@ namespace HomeAutomation.Models
     public string Email { get; set; }
     [Required]
     public string Password { get; set; }
+
+    [Required]
+    public Guid AppId { get; set; }
   }
 }

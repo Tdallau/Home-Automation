@@ -38,7 +38,8 @@ namespace HomeAutomation.Services
         UserId = user.Id,
         RefreshToken = token.RefreshToken,
         LastUpdated = now,
-        ExpiryDate = now.AddDays(7)
+        ExpiryDate = now.AddDays(7),
+        AppId = credentials.AppId
       });
       await _context.SaveChangesAsync();
 
@@ -68,6 +69,29 @@ namespace HomeAutomation.Services
         return false;
       }
       return true;
+    }
+
+    public async Task<JWTToken> Refresh(JWTToken tokens)
+    {
+      var tokenInDb = await _context.UserToken.FirstOrDefaultAsync(token => token.RefreshToken == tokens.RefreshToken);
+      if(tokenInDb == null) return null;
+
+      var user = Models.UserToken.FromToken(tokens.JwtToken);
+
+      var userToken = new Models.UserToken() {
+        UserId = user.UserId
+      };
+      var token = userToken.ToToken(_config);
+      token.RefreshToken = TokenHelper.GenerateRefreshToken();
+      var now = DateTime.Now;
+
+      tokenInDb.LastUpdated = now;
+      tokenInDb.ExpiryDate = now.AddDays(7);
+      tokenInDb.RefreshToken = token.RefreshToken;
+
+      _context.Update(tokenInDb);
+      await _context.SaveChangesAsync();
+      return token;
     }
   }
 }

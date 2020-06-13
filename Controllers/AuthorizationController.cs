@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using HomeAutomation.Interfaces;
 using HomeAutomation.Models;
@@ -21,8 +22,8 @@ namespace HomeAutomation.Controllers
     [HttpPost]
     public async Task<ActionResult<Response<LoginResponse>>> Login([FromBody] Credentials credentials)
     {
-      if(!ModelState.IsValid) return BadRequest(new Response<string>() {
-        Error = "username and password are requierd",
+      if(!ModelState.IsValid || credentials.AppId == Guid.Empty) return BadRequest(new Response<string>() {
+        Error = "username, password and appId are requierd",
         Success = false
       });
 
@@ -48,6 +49,18 @@ namespace HomeAutomation.Controllers
 
       return Ok(new Response<string>() {
         Data = "User is created",
+        Success = true
+      });
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<Response<JWTToken>>> Refresh([FromBody] JWTToken tokens)
+    {
+      var newTokens = await _authorizationService.Refresh(tokens);
+      if(newTokens == null) return Forbid();
+
+      return Ok(new Response<JWTToken>() {
+        Data = newTokens,
         Success = true
       });
     }
