@@ -72,7 +72,10 @@ namespace HomeAutomation.Controllers
     public async Task<IActionResult> Logout([FromBody] JWTToken token)
     {
       await _authorizationService.Logout(token.RefreshToken);
-      return Ok();
+      return Ok(new Response<string>() {
+        Data = "user is logged out",
+        Success = true
+      });
     }
   }
 }
