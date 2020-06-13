@@ -24,7 +24,7 @@ namespace HomeAutomation.Services
     }
     public async Task<LoginResponse> Login(Credentials credentials)
     {
-      var user = await _context.User.FirstOrDefaultAsync(user => user.Email == credentials.Email);
+      var user = await _context.User.FirstOrDefaultAsync(user => user.Email.ToLower() == credentials.Email.ToLower());
       if(user == null || _passwordHasher.VerifyHashedPassword(user, user.Password, credentials.Password) == PasswordVerificationResult.Failed) return null;
 
       var userToken = new Models.UserToken() {
