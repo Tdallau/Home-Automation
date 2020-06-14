@@ -81,6 +81,7 @@ namespace HomeAutomation
       // main project
       services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));
       services.AddScoped<IAuthorizationService, AuthorizationService>();
+      services.AddScoped<IUserService, UserService>();
 
       // my recipes
       services.AddScoped<IRecipeService, RecipeService>();

@@ -7,6 +7,7 @@ namespace HomeAutomation.Models.Database.Authorization
   {
     public Guid UserId { get; set; }
     public Guid AppId { get; set; }
+    public bool Default { get; set; }
 
     [JsonIgnore]
     public virtual User User { get; set; }

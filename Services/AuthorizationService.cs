@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using HomeAutomation.Helpers;
 using HomeAutomation.Helpers.Contexts;
@@ -59,11 +60,14 @@ namespace HomeAutomation.Services
       });
       await _context.SaveChangesAsync();
 
+      var defaultAppId = _context.UserApp.FirstOrDefault(x => x.Default).AppId;
       var response = new LoginResponse()
       {
         TokenSettings = token,
         Email = user.Email,
         Id = user.Id,
+        DefaultAppId = defaultAppId,
+        DefaultAppName = _context.App.FirstOrDefault(x => x.Id == defaultAppId).Name
       };
       return new Response<LoginResponse>() {
         Data = response,
