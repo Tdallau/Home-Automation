@@ -28,7 +28,7 @@ namespace HomeAutomation.Areas.MyRecipes.Controllers
     }
     // GET: api/Recipe
     [HttpGet]
-    public async Task<ActionResult<List<RecipeResponse>>> GetRecipes()
+    public async Task<ActionResult<Response<ResponseList<RecipeResponse>>>> GetRecipes()
     {
       var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
       var userToken = token.Split(' ')[1];
@@ -39,7 +39,7 @@ namespace HomeAutomation.Areas.MyRecipes.Controllers
 
     // GET: api/Recipe/{id}
     [HttpGet("{id}")]
-    public async Task<ActionResult<List<RecipeResponse>>> GetRecipeById(int id)
+    public async Task<ActionResult<Response<RecipeResponse>>> GetRecipeById(int id)
     {
       var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
       var userToken = token.Split(' ')[1];
@@ -50,7 +50,7 @@ namespace HomeAutomation.Areas.MyRecipes.Controllers
     }
 
     [HttpPost]
-    public async Task<ActionResult<RecipeResponse>> AddRecipe([FromBody] RecipeRequest recipeRequest)
+    public async Task<ActionResult<Response<RecipeResponse>>> AddRecipe([FromBody] RecipeRequest recipeRequest)
     {
       var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
       var userToken = token.Split(' ')[1];

@@ -12,5 +12,8 @@ namespace HomeAutomation.Areas.MyRecipes.Interfaces
     Task<Response<ResponseList<RecipeResponse>>> GetRecipes(Guid userId);
     Task<Response<RecipeResponse>> GetRecipe(int id, Guid userId);
     Task<Response<RecipeResponse>> AddRecipe(RecipeRequest recipeRequest, Guid userId);
+
+    // favorite
+    Task<Response<string>> SetFavoriteRecipe(Guid userId, int recipeId);
   }
 }

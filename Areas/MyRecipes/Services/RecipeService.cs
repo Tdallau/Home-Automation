@@ -26,7 +26,8 @@ namespace HomeAutomation.Areas.MyRecipes.Services
       var recipes = await _context.Recipe.Where(x => !x.Private).ToListAsync();
       return new Response<ResponseList<RecipeResponse>>()
       {
-        Data = new ResponseList<RecipeResponse>() {
+        Data = new ResponseList<RecipeResponse>()
+        {
           List = recipes.Select(x => _mapper.Convert(x, false, userId)),
           Count = recipes.Count
         },
@@ -91,6 +92,27 @@ namespace HomeAutomation.Areas.MyRecipes.Services
         Success = true,
       };
       //var ingredients = recipeResponse.Ingredients.Select(x => new Ingredient() { RecipeId = recipeResponse })
+    }
+
+    public async Task<Response<string>> SetFavoriteRecipe(Guid userId, int recipeId)
+    {
+      var favorite = await _context.FavoriteRecipe.FirstOrDefaultAsync(fav => fav.UserId == userId && fav.RecipeId == recipeId);
+      if (favorite == null)
+      {
+        var newFavorite = new FavoriteRecipe()
+        {
+          RecipeId = recipeId,
+          UserId = userId
+        };
+        await _context.AddAsync(newFavorite);
+      } else {
+        _context.Remove(favorite);
+      }
+      await _context.SaveChangesAsync();
+      return new Response<string>() {
+        Data = "favorite is updated",
+        Success = true
+      };
     }
 
     private async Task<int> GetAmountTypeId(string name)
