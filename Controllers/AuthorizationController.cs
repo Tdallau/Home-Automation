@@ -27,14 +27,7 @@ namespace HomeAutomation.Controllers
         Success = false
       });
 
-      var user = await _authorizationService.Login(credentials);
-
-      if(user == null) return Forbid();
-
-      return Ok(new Response<LoginResponse>() {
-        Data = user,
-        Success = true
-      });
+      return Ok(await _authorizationService.Login(credentials));
     }
 
     [HttpPost]

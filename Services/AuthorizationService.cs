@@ -4,6 +4,7 @@ using HomeAutomation.Helpers;
 using HomeAutomation.Helpers.Contexts;
 using HomeAutomation.Interfaces;
 using HomeAutomation.Models;
+using HomeAutomation.Models.Base;
 using HomeAutomation.Models.Database.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -22,22 +23,34 @@ namespace HomeAutomation.Services
       _config = config;
       _passwordHasher = passwordHasher;
     }
-    public async Task<LoginResponse> Login(Credentials credentials)
+    public async Task<Response<LoginResponse>> Login(Credentials credentials)
     {
       var user = await _context.User.FirstOrDefaultAsync(user => user.Email.ToLower() == credentials.Email.ToLower());
-      if(user == null || _passwordHasher.VerifyHashedPassword(user, user.Password, credentials.Password) == PasswordVerificationResult.Failed) return null;
+      if (user == null || _passwordHasher.VerifyHashedPassword(user, user.Password, credentials.Password) == PasswordVerificationResult.Failed)
+      {
+        return new Response<LoginResponse>()
+        {
+          Error = "De combinatie van email en wachtwoord komt niet voor in ons systeem",
+          Success = false
+        };
+      }
 
       var myApps = await _context.UserApp.FirstOrDefaultAsync(app => app.AppId == credentials.AppId && app.UserId == user.Id);
-      if(myApps == null) return null;
+      if (myApps == null) return new Response<LoginResponse>() {
+        Error = "U bent niet geautoriseerd om deze app te gebruiken",
+        Success = false
+      };
 
-      var userToken = new Models.UserToken() {
+      var userToken = new Models.UserToken()
+      {
         UserId = user.Id
       };
       var token = userToken.ToToken(_config);
       token.RefreshToken = TokenHelper.GenerateRefreshToken();
       var now = DateTime.Now;
 
-      await _context.AddAsync(new HomeAutomation.Models.Database.Authorization.UserToken() {
+      await _context.AddAsync(new HomeAutomation.Models.Database.Authorization.UserToken()
+      {
         UserId = user.Id,
         RefreshToken = token.RefreshToken,
         LastUpdated = now,
@@ -46,12 +59,16 @@ namespace HomeAutomation.Services
       });
       await _context.SaveChangesAsync();
 
-      var response = new LoginResponse() {
+      var response = new LoginResponse()
+      {
         TokenSettings = token,
         Email = user.Email,
         Id = user.Id,
       };
-      return response;
+      return new Response<LoginResponse>() {
+        Data = response,
+        Success = true
+      };
     }
 
     public async Task<bool> Register(Credentials credentials)
@@ -77,11 +94,12 @@ namespace HomeAutomation.Services
     public async Task<JWTToken> Refresh(JWTToken tokens)
     {
       var tokenInDb = await _context.UserToken.FirstOrDefaultAsync(token => token.RefreshToken == tokens.RefreshToken);
-      if(tokenInDb == null || tokenInDb.ExpiryDate < DateTime.Now) return null;
+      if (tokenInDb == null || tokenInDb.ExpiryDate < DateTime.Now) return null;
 
       var user = Models.UserToken.FromToken(tokens.JwtToken);
 
-      var userToken = new Models.UserToken() {
+      var userToken = new Models.UserToken()
+      {
         UserId = user.UserId
       };
       var token = userToken.ToToken(_config);
@@ -97,9 +115,10 @@ namespace HomeAutomation.Services
       return token;
     }
 
-    public async Task Logout(string refreshToken) {
+    public async Task Logout(string refreshToken)
+    {
       var token = await _context.UserToken.FirstOrDefaultAsync(token => token.RefreshToken == refreshToken);
-      if(token == null) return;
+      if (token == null) return;
       _context.Remove(token);
       await _context.SaveChangesAsync();
     }
