@@ -7,5 +7,6 @@ namespace HomeAutomation.Models.Database.Authorization
     public Guid Id { get; set; }
     public string Name { get; set; }
     public string Area { get; set; }
+    public string Url { get; set; }
   }
 }

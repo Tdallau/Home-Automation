@@ -28,7 +28,8 @@ namespace HomeAutomation.Services
           {
             Default = x.Default,
             Id = x.AppId,
-            Name = _context.App.FirstOrDefault(app => app.Id == x.AppId).Name
+            Name = _context.App.FirstOrDefault(app => app.Id == x.AppId).Name,
+            Area = _context.App.FirstOrDefault(app => app.Id == x.AppId).Area
           }),
           Count = myApps.Count()
         }
