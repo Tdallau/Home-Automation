@@ -7,7 +7,10 @@ using HomeAutomation.Areas.MyRecipes.Helpers.Mappers;
 using HomeAutomation.Areas.MyRecipes.Interfaces;
 using HomeAutomation.Areas.MyRecipes.Models;
 using HomeAutomation.Areas.MyRecipes.Services;
+using HomeAutomation.Areas.ShoppingList.Interfaces;
+using HomeAutomation.Areas.ShoppingList.Services;
 using HomeAutomation.Helpers.Contexts;
+using HomeAutomation.Hubs;
 using HomeAutomation.Interfaces;
 using HomeAutomation.Models.Database.MyRecipes;
 using HomeAutomation.Services;
@@ -46,6 +49,9 @@ namespace HomeAutomation
       services.AddDbContext<MyRecipesContext>(
         opt => opt.UseNpgsql(Configuration.GetConnectionString("MyRecipeConnection"))
       );
+      services.AddDbContext<MyShoppingListContext>(
+        opt => opt.UseNpgsql(Configuration.GetConnectionString("MyShoppingListConnection"))
+      );
 
       // add autentication
       services.AddAuthentication(options =>
@@ -82,11 +88,17 @@ namespace HomeAutomation
       services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));
       services.AddScoped<IAuthorizationService, AuthorizationService>();
       services.AddScoped<IUserService, UserService>();
+      services.AddSignalR();
 
       // my recipes
       services.AddScoped<IRecipeService, RecipeService>();
       services.AddScoped(typeof(IMapper<,>), typeof(BaseMapper<,>));
       services.AddScoped(typeof(IMapper<Recipe, RecipeResponse>), typeof(RecipeToRecipeResponse));
+
+      // my shoppinglist
+      services.AddScoped<IShopService, ShopService>();
+      services.AddScoped<IShoppingGroupService, ShoppingGroupService>();
+      services.AddScoped<IProductService, ProductService>();
 
       // home automation
     }
@@ -110,6 +122,7 @@ namespace HomeAutomation
       app.UseEndpoints(endpoints =>
       {
         endpoints.MapControllers();
+        endpoints.MapHub<MyShoppingListHub>("/hub/shoppingList");
       });
     }
   }
