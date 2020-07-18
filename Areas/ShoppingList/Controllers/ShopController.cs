@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -42,7 +43,8 @@ namespace HomeAutomation.Areas.ShoppingList.Controllers
       var userToken = token.Split(' ')[1];
       var user = UserToken.FromToken(userToken);
 
-      var shoppingGroup = await _shoppingGroupService.GetShoppingGroupByUserId(user.UserId);
+      var shoppingGroup = await _shoppingGroupService.GetActiveShoppingGroupByUserId(user.UserId);
+      if(shoppingGroup == null) return Ok(HelperBox.DataToReponseList(true, new List<Shop>()));
       var shops = await _shopService.GetShops(shoppingGroup.Id);
       return Ok(HelperBox.DataToReponseList(true, shops));
     }
@@ -54,7 +56,11 @@ namespace HomeAutomation.Areas.ShoppingList.Controllers
       var userToken = token.Split(' ')[1];
       var user = UserToken.FromToken(userToken);
 
-      var shoppingGroup = await _shoppingGroupService.GetShoppingGroupByUserId(user.UserId);
+      var shoppingGroup = await _shoppingGroupService.GetActiveShoppingGroupByUserId(user.UserId);
+
+      if(String.IsNullOrWhiteSpace(shopRequest.Logo)) {
+        shopRequest.Logo = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.ZkZVmxRirz9VVcxfBZjaqQHaFD%26pid%3DApi&f=1";
+      }
 
       var shop = await _shopService.CreateShop(shoppingGroup.Id, shopRequest);
       if(shop == null) return BadRequest(HelperBox.DataToResponse<Shop>(false, null, "Een winkel heeft een naam en logo nodig"));

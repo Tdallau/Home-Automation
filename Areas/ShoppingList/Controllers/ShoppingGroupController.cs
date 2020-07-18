@@ -55,9 +55,20 @@ namespace HomeAutomation.Areas.ShoppingList.Controllers
       var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
       var userToken = token.Split(' ')[1];
       var user = UserToken.FromToken(userToken);
-      var shoppingGroup = await _shoppingGroupService.GetShoppingGroupByUserId(user.UserId);
+      var shoppingGroup = await _shoppingGroupService.GetActiveShoppingGroupByUserId(user.UserId);
       if(shoppingGroup == null) return BadRequest(HelperBox.DataToResponse<ShoppingGroup>(false, null, "Winkelgroep niet gevonden"));
       return Ok(HelperBox.DataToResponse(true, shoppingGroup));
+    }
+
+    [HttpGet("all")]
+    public async Task<ActionResult<Response<ResponseList<ShoppingGroup>>>> GetAllMyShoppingGroups()
+    {
+      var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+      var userToken = token.Split(' ')[1];
+      var user = UserToken.FromToken(userToken);
+      var shoppingGroups = await _shoppingGroupService.GetAllShoppingGroupsByUserId(user.UserId);
+
+      return Ok(HelperBox.DataToReponseList(true, shoppingGroups));
     }
 
   }

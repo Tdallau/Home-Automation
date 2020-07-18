@@ -14,7 +14,11 @@ namespace HomeAutomation.Interfaces.Hubs
 
         // products
         Task AddProduct(int shopId, ProductForShop product);
-        Task UpdateProduct(int shopId, List<ProductForShop> products);
-        Task DeleteProduct(int shopId, List<ProductForShop> products);
+        Task UpdateProduct(int shopId, ProductForShop product);
+        Task DeleteProduct(int shopId, int productId);
+        Task MoveProduct(int oldShopId, int newShopId, int productId);
+
+        // for response when app making call to server
+        Task Echo(string function);
     }
 }

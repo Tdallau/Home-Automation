@@ -75,5 +75,24 @@ namespace HomeAutomation.Areas.ShoppingList.Services
           ShopProductId = shopProduct.Id,
       };
     }
+
+    public async Task<bool> MoveProduct(MoveProductRequest moveProductRequest)
+    {
+        var product = await _context.ShopProduct.FirstOrDefaultAsync(x => x.Id == moveProductRequest.ShopProductId);
+        if(product == null) return false;
+        product.ShopId = moveProductRequest.NewShopId;
+        _context.Update(product);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> DeleteProduct(DeleteProductRequest deleteProductRequest)
+    {
+        var product = await _context.ShopProduct.FirstOrDefaultAsync(x => x.Id == deleteProductRequest.ShopProductId);
+        if(product == null) return false;
+        _context.Remove(product);
+        await _context.SaveChangesAsync();
+        return true;
+    }
   }
 }

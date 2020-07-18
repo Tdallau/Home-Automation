@@ -40,11 +40,17 @@ namespace HomeAutomation.Areas.ShoppingList.Services
       return shoppingGroup;
     }
 
-    public async Task<ShoppingGroup> GetShoppingGroupByUserId(Guid userId)
+    public async Task<ShoppingGroup> GetActiveShoppingGroupByUserId(Guid userId)
     {
       var shoppingGroupUser = await _context.ShoppingGroupUser.FirstOrDefaultAsync(x => x.UserId == userId && x.Active);
       if (shoppingGroupUser == null) return null;
       return await _context.ShoppingGroup.FirstOrDefaultAsync(x => x.Id == shoppingGroupUser.ShoppingGroupId);
+    }
+
+    public async Task<IEnumerable<ShoppingGroup>> GetAllShoppingGroupsByUserId(Guid userId)
+    {
+      var shoppingGroupsUser = await _context.ShoppingGroup.Where(x => x.OwnerId == userId).ToListAsync();
+      return shoppingGroupsUser;
     }
 
     public async Task SetActiveShoppingGroup(Guid userId, ShoppingGroupRequest shoppingGroupRequest)
@@ -60,7 +66,7 @@ namespace HomeAutomation.Areas.ShoppingList.Services
 
     private async Task DeactivateAllShoppingGroup(Guid userId)
     {
-        IEnumerable<ShoppingGroupUser> shoppingGroupUsers = _context.ShoppingGroupUser.Select(x => new ShoppingGroupUser() {
+        IEnumerable<ShoppingGroupUser> shoppingGroupUsers = _context.ShoppingGroupUser.Where(x => x.UserId == userId).Select(x => new ShoppingGroupUser() {
             Id = x.Id,
             ShoppingGroupId = x.ShoppingGroupId,
             UserId = x.UserId,

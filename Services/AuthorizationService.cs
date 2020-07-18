@@ -92,6 +92,16 @@ namespace HomeAutomation.Services
       {
         return false;
       }
+
+      var app = new UserApp() {
+        UserId = user.Id,
+        AppId = credentials.AppId,
+        Default = true,
+      };
+
+      await _context.AddAsync(app);
+      await _context.SaveChangesAsync();
+
       return true;
     }
 

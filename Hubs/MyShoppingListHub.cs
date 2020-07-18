@@ -14,9 +14,10 @@ namespace HomeAutomation.Hubs
       _context = context;
     }
 
-    public async Task ConnectToShoppingGroup(Guid groupName)
+    public async Task<string> ConnectToShoppingGroup(Guid groupName)
     {
       await Groups.AddToGroupAsync(Context.ConnectionId, groupName.ToString());
+      return "ConnectToShoppingGroup";
     }
 
     public async Task DisconectFromShoppingGroup(Guid groupName)

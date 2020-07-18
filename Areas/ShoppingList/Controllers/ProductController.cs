@@ -35,8 +35,8 @@ namespace HomeAutomation.Areas.ShoppingList.Controllers
     [HttpPost("auto")]
     public async Task<ActionResult<Response<ResponseList<string>>>> GetAutoComplete([FromBody] AutoComplete autoComplete)
     {
-        var options = await _productService.AutoComplete(autoComplete.text);
-        return Ok(HelperBox.DataToReponseList(true, options));
+      var options = await _productService.AutoComplete(autoComplete.text);
+      return Ok(HelperBox.DataToReponseList(true, options));
     }
 
     [HttpPost]
@@ -49,7 +49,7 @@ namespace HomeAutomation.Areas.ShoppingList.Controllers
       var userToken = token.Split(' ')[1];
       var user = UserToken.FromToken(userToken);
 
-      var shoppingGroup = await _shoppingGroupService.GetShoppingGroupByUserId(user.UserId);
+      var shoppingGroup = await _shoppingGroupService.GetActiveShoppingGroupByUserId(user.UserId);
       await _shoppingListHub.Clients.Group(shoppingGroup.Id.ToString()).SendAsync(nameof(IMyShoppingListHub.AddProduct), productRequest.ShopId, product);
 
       return Ok(HelperBox.DataToResponse(true, "Product is toegevoegd aan de winkel"));
@@ -64,9 +64,39 @@ namespace HomeAutomation.Areas.ShoppingList.Controllers
       var userToken = token.Split(' ')[1];
       var user = UserToken.FromToken(userToken);
 
-      var shoppingGroup = await _shoppingGroupService.GetShoppingGroupByUserId(user.UserId);
+      var shoppingGroup = await _shoppingGroupService.GetActiveShoppingGroupByUserId(user.UserId);
       await _shoppingListHub.Clients.Group(shoppingGroup.Id.ToString()).SendAsync(nameof(IMyShoppingListHub.UpdateProduct), productRequest.ShopId, product);
       return Ok(HelperBox.DataToResponse(true, "Product is geupdate aan de winkel"));
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> MoveProduct([FromBody] MoveProductRequest moveProductRequest)
+    {
+      var success = await _productService.MoveProduct(moveProductRequest);
+      if (!success) return BadRequest(HelperBox.DataToResponse<string>(false, null, "Product is niet gevonden"));
+
+      var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+      var userToken = token.Split(' ')[1];
+      var user = UserToken.FromToken(userToken);
+
+      var shoppingGroup = await _shoppingGroupService.GetActiveShoppingGroupByUserId(user.UserId);
+      await _shoppingListHub.Clients.Group(shoppingGroup.Id.ToString()).SendAsync(nameof(IMyShoppingListHub.MoveProduct), moveProductRequest.OldShopId, moveProductRequest.NewShopId, moveProductRequest.ShopProductId);
+      return Ok(HelperBox.DataToResponse(true, "Product is verplaatst"));
+    }
+
+    [HttpPost("delete")]
+    public async Task<IActionResult> DeleteProduct([FromBody] DeleteProductRequest deleteProductRequest)
+    {
+      var success = await _productService.DeleteProduct(deleteProductRequest);
+      if (!success) return BadRequest(HelperBox.DataToResponse<string>(false, null, "Product is niet gevonden"));
+
+      var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+      var userToken = token.Split(' ')[1];
+      var user = UserToken.FromToken(userToken);
+
+      var shoppingGroup = await _shoppingGroupService.GetActiveShoppingGroupByUserId(user.UserId);
+      await _shoppingListHub.Clients.Group(shoppingGroup.Id.ToString()).SendAsync(nameof(IMyShoppingListHub.DeleteProduct), deleteProductRequest.ShopId, deleteProductRequest.ShopProductId);
+      return Ok(HelperBox.DataToResponse(true, "Product is verwijderd"));
     }
   }
 }
