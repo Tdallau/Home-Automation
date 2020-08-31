@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HomeAutomation.Areas.Dashboard.Interfaces;
+using HomeAutomation.Areas.Dashboard.Servcies;
 using HomeAutomation.Areas.MyRecipes.Helpers.Mappers;
 using HomeAutomation.Areas.MyRecipes.Interfaces;
 using HomeAutomation.Areas.MyRecipes.Models;
@@ -52,6 +54,9 @@ namespace HomeAutomation
       services.AddDbContext<MyShoppingListContext>(
         opt => opt.UseNpgsql(Configuration.GetConnectionString("MyShoppingListConnection"))
       );
+      services.AddDbContext<DashboardContext>(
+        opt => opt.UseNpgsql(Configuration.GetConnectionString("DashboardConnection"))
+      );
 
       // add autentication
       services.AddAuthentication(options =>
@@ -99,6 +104,9 @@ namespace HomeAutomation
       services.AddScoped<IShopService, ShopService>();
       services.AddScoped<IShoppingGroupService, ShoppingGroupService>();
       services.AddScoped<IProductService, ProductService>();
+
+      // dashboard
+      services.AddScoped<IWorkDayService, WorkDayService>();
 
       // home automation
     }
