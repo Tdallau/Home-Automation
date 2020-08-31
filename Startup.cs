@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using HomeAutomation.Areas.Dashboard.Interfaces;
 using HomeAutomation.Areas.Dashboard.Servcies;
+using HomeAutomation.Areas.MyCalender.Interfaces;
+using HomeAutomation.Areas.MyCalender.services;
 using HomeAutomation.Areas.MyRecipes.Helpers.Mappers;
 using HomeAutomation.Areas.MyRecipes.Interfaces;
 using HomeAutomation.Areas.MyRecipes.Models;
@@ -57,6 +59,9 @@ namespace HomeAutomation
       services.AddDbContext<DashboardContext>(
         opt => opt.UseNpgsql(Configuration.GetConnectionString("DashboardConnection"))
       );
+      services.AddDbContext<MyCalenderContext>(
+        opt => opt.UseNpgsql(Configuration.GetConnectionString("MyCalenderConnection"))
+      );
 
       // add autentication
       services.AddAuthentication(options =>
@@ -107,6 +112,9 @@ namespace HomeAutomation
 
       // dashboard
       services.AddScoped<IWorkDayService, WorkDayService>();
+
+      // my calender
+      services.AddScoped<ICalenderService, CalenderService>();
 
       // home automation
     }
