@@ -23,7 +23,7 @@ namespace HomeAutomation.Areas.MyCalender.services
     public async Task<List<HomeAutomation.Models.Database.MyCalender.MyCalender>> GetCalenders()
     {
       var calenders = _context.Calendar.Where(x => x.DisplayPublic);
-      await calenders.ForEachAsync(x => x.Password = "");
+      await calenders.ForEachAsync(x => x.Password = null);
       return await calenders.ToListAsync();
     }
 
