@@ -20,9 +20,11 @@ namespace HomeAutomation.Areas.MyCalender.services
       _passwordHasher = passwordHasher;
     }
 
-    public Task<List<HomeAutomation.Models.Database.MyCalender.MyCalender>> GetCalenders()
+    public async Task<List<HomeAutomation.Models.Database.MyCalender.MyCalender>> GetCalenders()
     {
-      return _context.Calendar.Where(x => x.DisplayPublic).ToListAsync();
+      var calenders = _context.Calendar.Where(x => x.DisplayPublic);
+      await calenders.ForEachAsync(x => x.Password = "");
+      return await calenders.ToListAsync();
     }
 
     public async Task<HomeAutomation.Models.Database.MyCalender.MyCalender> CreateNewCalender(MyCalenderRequest newCalender, Guid userId)

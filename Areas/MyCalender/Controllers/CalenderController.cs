@@ -25,6 +25,7 @@ namespace HomeAutomation.Areas.MyCalender.Controllers
       _calenderService = calenderService;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<ActionResult<Response<ResponseList<HomeAutomation.Models.Database.MyCalender.MyCalender>>>> GetCalender()
     {
