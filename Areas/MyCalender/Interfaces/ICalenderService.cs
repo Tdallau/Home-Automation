@@ -9,5 +9,6 @@ namespace HomeAutomation.Areas.MyCalender.Interfaces
   {
     Task<List<HomeAutomation.Models.Database.MyCalender.MyCalender>> GetCalenders();
     Task<HomeAutomation.Models.Database.MyCalender.MyCalender> CreateNewCalender(MyCalenderRequest newCalender, Guid UserId);
+    Task<SearchResponse> Search(SearchRequest searchRequest);
   }
 }

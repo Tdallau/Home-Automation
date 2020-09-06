@@ -3,15 +3,17 @@ using System;
 using HomeAutomation.Helpers.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HomeAutomation.Migrations.MyCalender
 {
     [DbContext(typeof(MyCalenderContext))]
-    partial class MyCalenderContextModelSnapshot : ModelSnapshot
+    [Migration("20200905121336_RemovedForeignKeySchema")]
+    partial class RemovedForeignKeySchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,10 +28,13 @@ namespace HomeAutomation.Migrations.MyCalender
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+                    b.Property<int>("CalenderId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<int?>("ParentId")
+                    b.Property<int>("ParentId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -105,9 +110,14 @@ namespace HomeAutomation.Migrations.MyCalender
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("CategoryId1")
+                        .HasColumnType("integer");
+
                     b.HasKey("CalenderId", "CategoryId");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("CategoryId1");
 
                     b.ToTable("CalenderCategrory");
                 });
@@ -134,7 +144,9 @@ namespace HomeAutomation.Migrations.MyCalender
                 {
                     b.HasOne("HomeAutomation.Models.Database.MyCalender.Category", "Parent")
                         .WithMany()
-                        .HasForeignKey("ParentId");
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("HomeAutomation.Models.Database.MyCalender.MyCalender", b =>
@@ -156,15 +168,13 @@ namespace HomeAutomation.Migrations.MyCalender
                 {
                     b.HasOne("HomeAutomation.Models.Database.MyCalender.MyCalender", "Calender")
                         .WithMany("CalenderCategrories")
-                        .HasForeignKey("CalenderId")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("HomeAutomation.Models.Database.MyCalender.Category", "Category")
                         .WithMany("CalenderCategrories")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CategoryId1");
                 });
 #pragma warning restore 612, 618
         }

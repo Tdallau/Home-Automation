@@ -40,8 +40,17 @@ namespace HomeAutomation.Areas.MyCalender.Controllers
       var user = UserToken.FromToken(userToken);
 
       var calender = await _calenderService.CreateNewCalender(newCalender, user.UserId);
-      if(calender == null) return BadRequest(HelperBox.DataToResponse<object>(false, null, "Naam en Filenaam zijn verplicht"));
+      if (calender == null) return BadRequest(HelperBox.DataToResponse<object>(false, null, "Naam en Filenaam zijn verplicht"));
       return Ok(HelperBox.DataToResponse(true, calender));
+    }
+
+    [AllowAnonymous]
+    [HttpPost("search")]
+    public async Task<ActionResult<Response<SearchResponse>>> SearchCalender([FromBody] SearchRequest searchSettings)
+    {
+      var response = await _calenderService.Search(searchSettings);
+      if (response == null) return BadRequest(HelperBox.DataToResponse<string>(false, null, "Er moet minimaal een searchString mee worden gegeven"));
+      return Ok(HelperBox.DataToResponse(true, response));
     }
   }
 }
