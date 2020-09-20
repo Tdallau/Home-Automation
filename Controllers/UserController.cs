@@ -12,7 +12,7 @@ namespace HomeAutomation.Controllers
   [ApiController]
   [Authorize]
   [EnableCors("SiteCorsPolicy")]
-  [Route("[controller]")]
+  [Route("[controller]/[action]")]
   public class UserController : ControllerBase
   {
     private readonly IUserService _userService;
@@ -29,6 +29,15 @@ namespace HomeAutomation.Controllers
       var user = UserToken.FromToken(userToken);
 
       return Ok(await _userService.GetMyApps(user.UserId));
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<Response<UserInfo>>> GetUserInfo()
+    {
+      var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+      var userToken = token.Split(' ')[1];
+      var user = UserToken.FromToken(userToken);
+      return await _userService.GetUserInfo(user.UserId);
     }
 
     [HttpPost]

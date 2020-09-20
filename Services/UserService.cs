@@ -36,6 +36,24 @@ namespace HomeAutomation.Services
       };
     }
 
+    public async Task<Response<UserInfo>> GetUserInfo(Guid userId)
+    {
+      var user = await _context.User.FirstOrDefaultAsync(x => x.Id == userId);
+      if(user == null) {
+        return new Response<UserInfo>() {
+          Success = false,
+          Error = "Er is geen gebruiker gevonden"
+        };
+      }
+      return new Response<UserInfo>() {
+        Success = true,
+        Data = new UserInfo() {
+          Email = user.Email,
+          Id = user.Id,
+        }
+      };
+    }
+
     public async Task<Response<string>> SetDefaultApp(Guid userId, Guid appId)
     {
       var apps = await _context.UserApp.Where(x => x.UserId == userId).ToListAsync();
