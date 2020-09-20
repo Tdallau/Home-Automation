@@ -32,6 +32,15 @@ namespace HomeAutomation.Areas.MyCalender.Controllers
       return Ok(HelperBox.DataToReponseList(true, await _calenderService.GetCalenders()));
     }
 
+    [HttpGet("my")]
+    public async Task<ActionResult<Response<ResponseList<HomeAutomation.Models.Database.MyCalender.MyCalender>>>> GetMyCalenders()
+    {
+      var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+      var userToken = token.Split(' ')[1];
+      var user = UserToken.FromToken(userToken);
+      return Ok(HelperBox.DataToReponseList(true, await _calenderService.GetCalenders(user.UserId)));
+    }
+
     [HttpPost]
     public async Task<ActionResult<Response<HomeAutomation.Models.Database.MyCalender.MyCalender>>> CreateNewCalender([FromBody] MyCalenderRequest newCalender)
     {
