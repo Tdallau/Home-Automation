@@ -48,6 +48,8 @@ namespace HomeAutomation.Areas.MyCalender.services
         FileName = newCalender.FileName,
         DisplayPublic = true,
         OwnerId = userId,
+        LanguageId = 1,
+        UploadFileTypeId = 3
       };
 
       if (!String.IsNullOrWhiteSpace(newCalender.Password))
