@@ -3,4 +3,4 @@ obj
 
 appsettings.json
 
-images
+**/images
