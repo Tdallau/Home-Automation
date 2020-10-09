@@ -12,6 +12,7 @@ namespace HomeAutomation.Models.Database.MyRecipes
     [Required]
     public string Name { get; set; }
     public string VideoId { get; set; }
+    public string Instruction { get; set; }
     public string Description { get; set; }
     public bool Private { get; set; }
 
@@ -23,6 +24,7 @@ namespace HomeAutomation.Models.Database.MyRecipes
     public virtual List<Ingredient> Ingredients { get; set; }
     public virtual List<Link> Links { get; set; }
     public virtual List<FavoriteRecipe> FavoriteRecipes { get; set; }
+    public virtual List<RecipeImages> RecipeImages { get; set; }
     public virtual RecipeAmount RecipeAmount { get; set; }
   }
 }

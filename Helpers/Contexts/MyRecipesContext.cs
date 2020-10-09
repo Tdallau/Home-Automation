@@ -11,6 +11,7 @@ namespace HomeAutomation.Helpers.Contexts
     public DbSet<Ingredient> Ingredient { get; set; }
     public DbSet<AmountType> AmountType { get; set; }
     public DbSet<RecipeAmount> RecipeAmount { get; set; }
+    public DbSet<RecipeImages> RecipeImage { get; set; }
     public MyRecipesContext(DbContextOptions<MyRecipesContext> options) : base(options) { }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
