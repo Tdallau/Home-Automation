@@ -29,6 +29,7 @@ namespace HomeAutomation.Areas.MyRecipes.Controllers
     public IActionResult GetImage(int recipeId, string imageName)
     {
       var path = Path.Combine(_enviroment.ContentRootPath, $"images/{recipeId}/{imageName}");
+      Console.WriteLine(path);
       if (!System.IO.File.Exists(path))
       {
         return NotFound();
