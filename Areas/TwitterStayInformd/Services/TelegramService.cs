@@ -24,7 +24,7 @@ namespace HomeAutomation.Areas.TwitterStayInformd.Services
 
     public async Task<object> SendMessage(string bodId, string chatId, string text)
     {
-      var request = new HttpRequestMessage(HttpMethod.Post, $"{_baseurl}{StringCipher.decodingWinDataProtection(bodId)}/sendMessage");
+      var request = new HttpRequestMessage(HttpMethod.Post, $"{_baseurl}bot{StringCipher.decodingWinDataProtection(bodId)}/sendMessage");
       var body = new TelegramChat()
       {
         ChatId = StringCipher.decodingWinDataProtection(chatId),
