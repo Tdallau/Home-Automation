@@ -13,9 +13,11 @@ namespace HomeAutomation.Areas.MyRecipes.Models
     public bool Private { get; set; }
     public bool Favorite { get; set; }
     public bool Vega { get; set; }
-    public RecipeImageResponse MainImage { get; set; }
+    public string MainImage { get; set; }
+    public string Instruction { get; set; }
     public List<IngredientResponse> Ingredients { get; set; }
     public List<LinkResponse> Links { get; set; }
-    public List<RecipeImageResponse> Images { get; set; }
+    public List<RecipeInstructionResponse> RecipeInstructions { get; set; }
+    public List<string> Images { get; set; }
   }
 }

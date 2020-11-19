@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Hangfire;
+using Hangfire.PostgreSql;
 using HomeAutomation.Areas.Dashboard.Interfaces;
 using HomeAutomation.Areas.Dashboard.Servcies;
 using HomeAutomation.Areas.MyCalender.Interfaces;
@@ -13,6 +17,8 @@ using HomeAutomation.Areas.MyRecipes.Models;
 using HomeAutomation.Areas.MyRecipes.Services;
 using HomeAutomation.Areas.ShoppingList.Interfaces;
 using HomeAutomation.Areas.ShoppingList.Services;
+using HomeAutomation.Areas.TwitterStayInformd.Interfaces;
+using HomeAutomation.Areas.TwitterStayInformd.Services;
 using HomeAutomation.Helpers.Contexts;
 using HomeAutomation.Hubs;
 using HomeAutomation.Interfaces;
@@ -30,6 +36,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 namespace HomeAutomation
 {
@@ -46,7 +53,36 @@ namespace HomeAutomation
     public void ConfigureServices(IServiceCollection services)
     {
       // Register the Swagger generator, defining 1 or more Swagger documents
-      services.AddSwaggerGen();
+      services.AddSwaggerGen(c =>
+     {
+       c.SwaggerDoc("v1", new OpenApiInfo() { Title = "Home automation api", Version = Configuration.GetValue<string>("Version") });
+       c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+       {
+         Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
+         Name = "Authorization",
+         In = ParameterLocation.Header,
+         Type = SecuritySchemeType.ApiKey,
+         Scheme = "Bearer"
+       });
+       c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+       {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    },
+                    Scheme = "oauth2",
+                    Name = "Bearer",
+                    In = ParameterLocation.Header,
+
+                },
+                new List<string>()
+            }
+       });
+     });
 
       services.AddControllers();
 
@@ -65,6 +101,18 @@ namespace HomeAutomation
       services.AddDbContext<MyCalenderContext>(
         opt => opt.UseNpgsql(Configuration.GetConnectionString("MyCalenderConnection"))
       );
+      services.AddDbContext<TwitterStayInformdContext>(
+        opt => opt.UseNpgsql(Configuration.GetConnectionString("TwitterStayInformdConnection"))
+      );
+
+      services.AddHangfire(configuration => configuration
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UsePostgreSqlStorage(Configuration.GetConnectionString("HangfireConnection"), new PostgreSqlStorageOptions()));
+
+      // Add the processing server as IHostedService
+      services.AddHangfireServer();
 
       // add autentication
       services.AddAuthentication(options =>
@@ -97,6 +145,8 @@ namespace HomeAutomation
         options.AddPolicy("SiteCorsPolicy", corsBuilder.Build());
       });
 
+      services.AddHttpClient();
+
       // main project
       services.AddScoped(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));
       services.AddScoped<IAuthorizationService, AuthorizationService>();
@@ -119,11 +169,16 @@ namespace HomeAutomation
       // my calender
       services.AddScoped<ICalenderService, CalenderService>();
 
+      // twitter stay informd
+      services.AddScoped<ITimelineService, TimelineService>();
+      services.AddScoped<ITweetReaderServcie, TweetReaderServcie>();
+      services.AddScoped<ITelegramService, TelegramService>();
+
       // home automation
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app, IBackgroundJobClient backgroundJobs, IWebHostEnvironment env)
     {
       if (env.IsDevelopment())
       {
@@ -140,6 +195,9 @@ namespace HomeAutomation
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
       });
 
+      app.UseHangfireDashboard();
+      backgroundJobs.Enqueue(() => Console.WriteLine("Hello world from Hangfire!"));
+
       app.UseHttpsRedirection();
 
       app.UseRouting();
@@ -151,6 +209,7 @@ namespace HomeAutomation
       app.UseEndpoints(endpoints =>
       {
         endpoints.MapControllers();
+        endpoints.MapHangfireDashboard();
         endpoints.MapHub<MyShoppingListHub>("/hub/shoppingList");
       });
     }

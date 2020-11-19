@@ -1,9 +1,8 @@
 namespace HomeAutomation.Areas.MyRecipes.Models
 {
-  public class RecipeImageResponse
+  public class RecipeInstructionResponse
   {
     public int Id { get; set; }
-    public string Image { get; set; }
-
+    public string Step { get; set; }
   }
 }

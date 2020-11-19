@@ -12,13 +12,17 @@ namespace HomeAutomation.Areas.MyRecipes.Helpers.Mappers
     private readonly MyRecipesContext _context;
     private readonly IMapper<Ingredient, IngredientResponse> _ingredientMapper;
     private readonly IMapper<Link, LinkResponse> _linkMapper;
-    private readonly IMapper<RecipeImages, RecipeImageResponse> _imageMapper;
-    public RecipeToRecipeResponse(MyRecipesContext context, IMapper<Link, LinkResponse> linkMapper, IMapper<Ingredient, IngredientResponse> ingredientMapper, IMapper<RecipeImages, RecipeImageResponse> imageMapper)
+    private readonly IMapper<RecipeInstruction, RecipeInstructionResponse> _recipeInstructionMapper;
+    public RecipeToRecipeResponse(
+      MyRecipesContext context, 
+      IMapper<Link, LinkResponse> linkMapper, 
+      IMapper<Ingredient, IngredientResponse> ingredientMapper,
+      IMapper<RecipeInstruction, RecipeInstructionResponse> recipeInstructinMapper)
     {
       _context = context;
       _linkMapper = linkMapper;
       _ingredientMapper = ingredientMapper;
-      _imageMapper = imageMapper;
+      _recipeInstructionMapper = recipeInstructinMapper;
     }
 
     public override RecipeResponse Convert(Recipe recipe, bool getOne, Guid? userId)
@@ -30,16 +34,21 @@ namespace HomeAutomation.Areas.MyRecipes.Helpers.Mappers
       {
         recipeResponse.Ingredients = _context.Ingredient.Where(x => x.RecipeId == recipe.Id).Select(x => _ingredientMapper.Convert(x, userId)).ToList();
         recipeResponse.Links = _context.Link.Where(x => x.RecipeId == recipe.Id).Select(x => _linkMapper.Convert(x, userId))?.ToList();
-        recipeResponse.Images = _context.RecipeImage.Where(x => x.RecipeId == recipe.Id).Select(x => _imageMapper.Convert(x, userId))?.ToList();
+        recipeResponse.Images = _context.RecipeImage.Where(x => x.RecipeId == recipe.Id).Select(x => x.Image)?.ToList();
+        recipeResponse.RecipeInstructions = _context.RecipeInstruction.Where(x => x.RecipeId == recipe.Id).Select(x => _recipeInstructionMapper.Convert(x, userId))?.ToList();
       }
       var favorite = _context.FavoriteRecipe.FirstOrDefault(x => x.UserId == userId && x.RecipeId == recipe.Id);
       recipeResponse.Favorite = favorite != null;
       var mainImage = _context.RecipeImage.FirstOrDefault(x => x.RecipeId == recipe.Id);
-      recipeResponse.MainImage = mainImage != null ? _imageMapper.Convert(mainImage, userId) : null;
+      recipeResponse.MainImage = mainImage?.Image;
 
       var amount = _context.RecipeAmount.FirstOrDefault(x => x.Id == recipe.RecipeAmountId);
       if (amount == null) return recipeResponse;
-      recipeResponse.Amount = $"{amount.Min}-{amount.Max} {_context.AmountType.FirstOrDefault(x => x.Id == amount.AmountTypeId)?.Name}";
+      if(amount.Max == null) {
+        recipeResponse.Amount = $"{amount.Min} {_context.AmountType.FirstOrDefault(x => x.Id == amount.AmountTypeId)?.Name}";
+      } else {
+        recipeResponse.Amount = $"{amount.Min}-{amount.Max} {_context.AmountType.FirstOrDefault(x => x.Id == amount.AmountTypeId)?.Name}";
+      }
 
       return recipeResponse;
     }

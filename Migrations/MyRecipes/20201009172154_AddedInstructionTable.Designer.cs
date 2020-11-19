@@ -3,15 +3,17 @@ using System;
 using HomeAutomation.Helpers.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HomeAutomation.Migrations.MyRecipes
 {
     [DbContext(typeof(MyRecipesContext))]
-    partial class MyRecipesContextModelSnapshot : ModelSnapshot
+    [Migration("20201009172154_AddedInstructionTable")]
+    partial class AddedInstructionTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -196,7 +198,8 @@ namespace HomeAutomation.Migrations.MyRecipes
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RecipeId");
+                    b.HasIndex("RecipeId")
+                        .IsUnique();
 
                     b.ToTable("RecipeInstruction");
                 });
@@ -258,8 +261,8 @@ namespace HomeAutomation.Migrations.MyRecipes
             modelBuilder.Entity("HomeAutomation.Models.Database.MyRecipes.RecipeInstruction", b =>
                 {
                     b.HasOne("HomeAutomation.Models.Database.MyRecipes.Recipe", "Recipe")
-                        .WithMany("RecipeInstruction")
-                        .HasForeignKey("RecipeId")
+                        .WithOne("RecipeInstruction")
+                        .HasForeignKey("HomeAutomation.Models.Database.MyRecipes.RecipeInstruction", "RecipeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -3,15 +3,17 @@ using System;
 using HomeAutomation.Helpers.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HomeAutomation.Migrations.MyRecipes
 {
     [DbContext(typeof(MyRecipesContext))]
-    partial class MyRecipesContextModelSnapshot : ModelSnapshot
+    [Migration("20201009172804_AddedInstructionTableList")]
+    partial class AddedInstructionTableList
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
